@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Products</h5>
+
+        {% if not user.is_authenticated %}
+          <div class="alert alert-warning">
+            Please <a href="{% url 'login' %}?next=/" class="alert-link">login</a> to checkout and see your orders.
+          </div>
+        {% endif %}
+
+        <div id="checkoutError" class="alert alert-danger d-none"></div>
+
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="text-end">Price</th>
+              <th style="width: 140px;">Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in products %}
+              <tr>
+                <td class="fw-semibold">{{ p.name }}</td>
+                <td class="text-end">{{ p.display_price }}</td>
+                <td>
+                  <input
+                    class="form-control form-control-sm qty-input"
+                    type="number"
+                    min="0"
+                    max="99"
+                    value="0"
+                    data-product-key="{{ p.key }}"
+                  />
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <button id="buyBtn" class="btn btn-primary w-100" {% if not user.is_authenticated %}disabled{% endif %}>
+          Buy
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title mb-3">My Orders (Paid)</h5>
+
+        {% if not user.is_authenticated %}
+          <div class="text-muted">Login to view your paid orders.</div>
+        {% else %}
+          {% if orders %}
+            <ul class="list-group">
+              {% for o in orders %}
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div class="fw-semibold">Order {{ o.public_id }}</div>
+                    <span class="badge text-bg-success">Paid</span>
+                  </div>
+
+                  <div class="small text-muted">Total: {{ o.amount_display }}</div>
+                  <div class="small text-muted">Paid at: {{ o.paid_at }}</div>
+
+                  <div class="mt-2">
+                    <div class="small fw-semibold">Items:</div>
+                    <ul class="small mb-0">
+                      {% for it in o.items.all %}
+                        <li>{{ it.name }} × {{ it.quantity }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="text-muted">No paid orders yet.</div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
