@@ -311,45 +311,44 @@ In a production environment, you would typically have:
 
 > This structure is indicative and may vary slightly based on the exact repository.
 
-
 .
 ├── manage.py
-├── .env.example                 # Sample environment configuration (no secrets)
+├── .env.example # Sample environment configuration (no secrets)
 ├── .gitignore
 ├── config/
-│   ├── __init__.py
-│   ├── asgi.py
-│   ├── settings.py              # Django + DB + Stripe configuration
-│   ├── urls.py                  # Root URL routing
-│   └── wsgi.py
+│ ├── **init**.py
+│ ├── asgi.py
+│ ├── settings.py # Django + DB + Stripe configuration
+│ ├── urls.py # Root URL routing
+│ └── wsgi.py
 └── store/
-    ├── __init__.py
-    ├── models.py                # Order, OrderItem, StripeEvent
-    ├── views.py                 # Home page, webhook-status, debug views
-    ├── urls.py                  # UI URLs
-    ├── api/
-    │   ├── __init__.py
-    │   ├── serializers.py       # Checkout request serializer
-    │   ├── views.py             # /api/checkout/ view
-    │   └── urls.py              # API URLs
-    ├── services/
-    │   ├── products.py          # Product catalog definition
-    │   ├── checkout.py          # High-level checkout orchestration
-    │   ├── stripe.py            # Stripe API integration
-    │   └── repositories/
-    │       └── orders.py        # Order + OrderItem persistence functions
-    ├── webhooks/
-    │   ├── __init__.py
-    │   ├── urls.py              # /stripe/webhook/ route
-    │   └── views.py             # Stripe webhook handler
-    ├── templates/
-    │   ├── base.html
-    │   └── store/
-    │       ├── home.html
-    │       └── debug_stripe_events.html
-    └── static/
-        └── store/
-            └── app.js
+├── **init**.py
+├── models.py # Order, OrderItem, StripeEvent
+├── views.py # Home page, webhook-status, debug views
+├── urls.py # UI URLs
+├── api/
+│ ├── **init**.py
+│ ├── serializers.py # Checkout request serializer
+│ ├── views.py # /api/checkout/ view
+│ └── urls.py # API URLs
+├── services/
+│ ├── products.py # Product catalog definition
+│ ├── checkout.py # High-level checkout orchestration
+│ ├── stripe.py # Stripe API integration
+│ └── repositories/
+│ └── orders.py # Order + OrderItem persistence functions
+├── webhooks/
+│ ├── **init**.py
+│ ├── urls.py # /stripe/webhook/ route
+│ └── views.py # Stripe webhook handler
+├── templates/
+│ ├── base.html
+│ └── store/
+│ ├── home.html
+│ └── debug_stripe_events.html
+└── static/
+└── store/
+└── app.js
 
 ---
 
@@ -391,31 +390,30 @@ In a production environment, you would typically have:
 - Stripe CLI (local webhook forwarding)
 - virtualenv / pipenv
 
-### 6.2 Python & virtual environment
-
 ---
 
-# Create virtual env
+### 6.2 Python & virtual environment
 
-python -m venv .venv
+**Create virtual env**
 
-# Activate (Windows)
+- python -m venv .venv
 
-.venv\Scripts\activate
+**Activate (Windows)**
 
-# Activate (macOS / Linux)
+- .venv\Scripts\activate
 
-source .venv/bin/activate
+**Activate (macOS / Linux)**
 
-### 6.3 Install dependencies
+- source .venv/bin/activate
 
-pip install -r requirements.txt
+**6.3 Install dependencies**
 
-# or, if using pipenv:
+- pip install -r requirements.txt
 
-# pipenv install
+### or, if using pipenv:
 
-# pipenv shell
+- pipenv install
+- pipenv shell
 
 ### 6.4 Environment variable setup
 
@@ -432,12 +430,10 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 ### 6.5 Local PostgreSQL setup
 
-1. **Create a database user and DB (example):**
-   CREATE USER ministore_user WITH PASSWORD 'YourPasswordHere';
-   CREATE DATABASE ministore_checkout OWNER ministore_user;
-   GRANT ALL PRIVILEGES ON DATABASE ministore_checkout TO ministore_user;
-
-2. **Confirm DATABASE_URL points to this DB:-**
+- **Create a database user and DB (example):**
+- CREATE USER ministore_user WITH PASSWORD 'YourPasswordHere';
+- CREATE DATABASE ministore_checkout OWNER ministore_user;
+- GRANT ALL PRIVILEGES ON DATABASE ministore_checkout TO ministore_user;
 
 ### 6.6 Running migrations
 
@@ -448,9 +444,9 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 - python manage.py createsuperuser
 
-# Follow prompts for username/email/password
+## Follow prompts for username/email/password
 
-### 6.8 Run the Server
+### 6.8 Run the Server:-
 
 - **python manage.py runserver**
 - **UI:** http://127.0.0.1:8000/
@@ -515,7 +511,7 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 ### 8.3 Schema management
 
-- **Models**:
+- **Models: -**
 - **Order** – tracks user, total amount, currency, Stripe IDs, timestamps, and status.
 - **OrderItem** – links to Order, stores product info, unit price, and line totals.
 - **StripeEvent** – stores event_id and minimal metadata for webhook idempotency.
@@ -678,9 +674,9 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 ### 12.3 How to run tests
 
-- pytest # standard run
-- pytest -q # quiet
-- pytest -vv # verbose per-test output
+- pytest **# standard run**
+- pytest -q **# quiet**
+- pytest -vv **# verbose per-test output**
 
 ### 12.4 Test coverage expectations
 
@@ -705,6 +701,7 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 ### 13.2 Deployment flow (example)
 
 1. Build artifact (Docker image or packaged release).
+
 2. **Apply database migrations:**
    python manage.py migrate
 
@@ -783,15 +780,15 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 ### 15.2 Branching strategy
 
-- main / master: always deployable.
-- dev / develop: integration branch (optional).
-- Feature branches: feature/short-description.
-- Bugfix branches: fix/short-description.
+- **main / master:** always deployable.
+- **dev / develop:** integration branch (optional).
+- **Feature branches:** feature/short-description.
+- **Bugfix branches:** fix/short-description.
 
 ### 15.3 Pull Request (PR) process
 
 - Every change should go via PR.
-- **Include:**
+- **Includes:**
 - Problem statement.
 - Summary of changes.
 - Testing performed (with commands).
