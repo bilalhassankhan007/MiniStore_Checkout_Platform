@@ -103,6 +103,8 @@ A secure checkout backend demonstrating how to build a Stripe-powered payment fl
 
 ## 1. Project Overview
 
+MiniStore Checkout transcends being a simple technical demonstration to establish itself as a production-grade reference architecture for integrating modern payment processing into Django-based applications. The project meticulously embodies enterprise-level architectural patterns while maintaining deliberate, thoughtful minimalism, strategically balancing sophistication with accessibility. It serves a dual purpose: as an educational masterclass for developers seeking to understand payment integration complexities, and as a production-ready foundation that organizations can confidently deploy, extend, and scale for real-world e-commerce operations.
+
 ### 1.1 What problem this system solves
 
 MiniStore Checkout Platform provides a **small but real-world** example of:
@@ -309,7 +311,7 @@ In a production environment, you would typically have:
 
 > This structure is indicative and may vary slightly based on the exact repository.
 
-```text
+
 .
 ├── manage.py
 ├── .env.example                 # Sample environment configuration (no secrets)
@@ -343,21 +345,21 @@ In a production environment, you would typically have:
     ├── templates/
     │   ├── base.html
     │   └── store/
-    │       ├── home.html        # Product list + paid orders
-    │       └── debug_stripe_events.html (if implemented)
+    │       ├── home.html
+    │       └── debug_stripe_events.html
     └── static/
         └── store/
-            └── app.js           # Small JS for calling /api/checkout/ and handling redirects
+            └── app.js
 
+---
 
-
-## Where Things Live
+### Where Things Live
 
 - **Business domain models:** `store/models.py`
 
 - **Business workflows:**
   - `store/services/checkout.py`
-  - `store/services/repositories/orders.py`
+  - `store/repositories/orders.py`
 
 - **Infrastructure integration (Stripe):**
   - `store/services/stripe.py`
@@ -365,16 +367,16 @@ In a production environment, you would typically have:
 
 - **Configuration:**
   - `config/settings.py`
-  - `.env`
+  - `.env` (local only; never commit)
   - `.env.example`
 
-- **UI + API Routing:**
+- **UI + API routing:**
   - `config/urls.py`
   - `store/urls.py`
   - `store/api/urls.py`
   - `store/webhooks/urls.py`
 
-
+---
 
 ## 6. Environment Setup (Local Development)
 
@@ -382,31 +384,41 @@ In a production environment, you would typically have:
 
 - Python 3.11+
 - PostgreSQL (local or container)
-- Stripe account (for API keys + webhook secret)
+- Stripe account (API keys + webhook secret)
 
-- **Optional:**
-  - Stripe CLI (for local webhook forwarding)
-  - pipenv / virtualenv
+**Optional**
 
-6.2 Python & virtual environment
+- Stripe CLI (local webhook forwarding)
+- virtualenv / pipenv
+
+### 6.2 Python & virtual environment
+
+---
+
 # Create virtual env
+
 python -m venv .venv
 
 # Activate (Windows)
+
 .venv\Scripts\activate
 
 # Activate (macOS / Linux)
+
 source .venv/bin/activate
 
+### 6.3 Install dependencies
 
-6.3 Install dependencies
 pip install -r requirements.txt
+
 # or, if using pipenv:
+
 # pipenv install
+
 # pipenv shell
 
+### 6.4 Environment variable setup
 
-6.4 Environment variable setup
 Create .env in the project root (same folder as manage.py), based on .env.example:
 DEBUG=True
 SECRET_KEY=django-insecure-local-dev-only
@@ -418,336 +430,382 @@ STRIPE_PUBLIC_KEY=pk_test_your_key_here
 STRIPE_SECRET_KEY=sk_test_your_key_here
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
+### 6.5 Local PostgreSQL setup
 
-6.5 Local PostgreSQL setup
-1. Create a database user and DB (example):
-CREATE USER ministore_user WITH PASSWORD 'YourPasswordHere';
-CREATE DATABASE ministore_checkout OWNER ministore_user;
-GRANT ALL PRIVILEGES ON DATABASE ministore_checkout TO ministore_user;
+1. **Create a database user and DB (example):**
+   CREATE USER ministore_user WITH PASSWORD 'YourPasswordHere';
+   CREATE DATABASE ministore_checkout OWNER ministore_user;
+   GRANT ALL PRIVILEGES ON DATABASE ministore_checkout TO ministore_user;
 
-2. Confirm DATABASE_URL points to this DB.
-6.6 Running migrations
-python manage.py makemigrations --check --dry-run  # Should show "No changes detected" once stable
-python manage.py migrate
+2. **Confirm DATABASE_URL points to this DB:-**
 
-6.7 Create a superuser (for admin access)
-python manage.py createsuperuser
+### 6.6 Running migrations
+
+- python manage.py makemigrations --check --dry-run # Should show "No changes detected" once stable
+- python manage.py migrate
+
+### 6.7 Create a superuser (for admin access)
+
+- python manage.py createsuperuser
+
 # Follow prompts for username/email/password
 
-6.8 Run the Server
-python manage.py runserver
-- UI: http://127.0.0.1:8000/
-- Admin: http://127.0.0.1:8000/admin/
+### 6.8 Run the Server
 
+- **python manage.py runserver**
+- **UI:** http://127.0.0.1:8000/
+- **Admin:** http://127.0.0.1:8000/admin/
 
-7. Configuration & Secrets Management
-7.1 Environment variables
-Key environment variables:
+## 7. Configuration & Secrets Management
 
-- Django:
--- DEBUG
--- SECRET_KEY
--- ALLOWED_HOSTS
--- DATABASE_URL
+### 7.1 Environment variables
 
-- Stripe:
--- STRIPE_PUBLIC_KEY
--- STRIPE_SECRET_KEY
--- STRIPE_WEBHOOK_SECRET
+#### Key environment variables:
 
-7.2 Secrets handling
-- Never commit .env with real secrets.
-- For production:
--- Use secret managers (AWS Secrets Manager, GCP Secret Manager, Vault) or environment injections via CI/CD.
--- Ensure SECRET_KEY is unique per environment and not guessable.
--- Stripe live keys must be scoped and rotated according to security policy.
+- **Django**:
+- DEBUG
+- SECRET_KEY
+- ALLOWED_HOSTS
+- DATABASE_URL
 
+- **Stripe**:
+- STRIPE_PUBLIC_KEY
+- STRIPE_SECRET_KEY
+- STRIPE_WEBHOOK_SECRET
 
-7.3 Different environments (dev / staging / prod)
-Typical pattern:
+### 7.2 Secrets handling
+
+- **Never commit .env with real secrets.**
+- **For production:**
+- Use secret managers (AWS Secrets Manager, GCP Secret Manager, Vault) or environment injections via CI/CD.
+- Ensure SECRET_KEY is unique per environment and not guessable.
+- Stripe live keys must be scoped and rotated according to security policy.
+
+### 7.3 Different environments (dev / staging / prod)
+
+- **Typical pattern:**
 - .env.local / .env.development for local dev.
 - .env.staging for test/staging environment (loaded by CI/CD).
 - .env.production or secret manager for production.
-config/settings.py can be extended to support environment-specific overrides (e.g., DJANGO_SETTINGS_MODULE=config.settings.production).
+- config/settings.py can be extended to support environment-specific overrides (e.g., DJANGO_SETTINGS_MODULE=config.settings.production).
 
-7.4 Configuration best practices
+### 7.4 Configuration best practices
+
 - Fail fast if critical variables are missing (e.g., Stripe keys in production).
 - Use DEBUG=False and strict ALLOWED_HOSTS in non-dev environments.
 - Restrict database access (host firewall / security groups).
 - Keep configuration immutable once deployed; use CI/CD pipelines to change it safely.
 
-8. Database & Migrations
-8.1 PostgreSQL usage
+## 8. Database & Migrations
+
+### 8.1 PostgreSQL usage
+
 - Single PostgreSQL DB as primary data store.
 - Tables created via Django migrations.
 - No multi-tenant or sharding complexity in this minimal version.
 
-8.2 Migration strategy
+### 8.2 Migration strategy
+
 - Migrations live under store/migrations/ and django core apps.
-- General workflow:
---  Make model changes.
---  Run python manage.py makemigrations.
---  Review migration files into version control.
---  Apply with python manage.py migrate in each environment.
+- **General workflow:**
+- Make model changes.
+- Run python manage.py makemigrations.
+- Review migration files into version control.
+- Apply with python manage.py migrate in each environment.
 
+### 8.3 Schema management
 
-8.3 Schema management
-- Models:
--- Order – tracks user, total amount, currency, Stripe IDs, timestamps, and status.
--- OrderItem – links to Order, stores product info, unit price, and line totals.
--- StripeEvent – stores event_id and minimal metadata for webhook idempotency.
-- Fields are chosen to be stable and safe with stripe integration (e.g., public_id as UUID for user-safe references).
+- **Models**:
+- **Order** – tracks user, total amount, currency, Stripe IDs, timestamps, and status.
+- **OrderItem** – links to Order, stores product info, unit price, and line totals.
+- **StripeEvent** – stores event_id and minimal metadata for webhook idempotency.
+- Fields are chosen to be stable and safe with stripe integration (`e.g., public_id as UUID for user-safe references`).
 
+### 8.4 Data integrity considerations
 
-8.4 Data integrity considerations
-- Foreign keys:
--- OrderItem.order → Order.id (on_delete=CASCADE).
-- Uniqueness:
--- StripeEvent.event_id is unique to ensure idempotency.
--- Stripe IDs on Order (session + payment intent) are unique where appropriate.
-- Order status transitions:
--- mark_paid() ensures second calls are idempotent.
--- mark_failed() avoids modifying already-paid orders.
+- **Foreign keys**:
+- OrderItem.order → Order.id (`on_delete=CASCADE`).
+- **Uniqueness**:
+- StripeEvent.event_id is unique to ensure idempotency.
+- Stripe IDs on Order (`session + payment intent`) are unique where appropriate.
+- **Order status transitions**:
+- `mark_paid()` ensures second calls are idempotent.
+- `mark_failed()` avoids modifying already-paid orders.
 
-8.5 Backup / restore (high level)
-- Use standard PostgreSQL backup strategy:
--- pg_dump / pg_restore for logical backups.
--- Managed DB snapshots if using cloud providers.
+### 8.5 Backup / restore (high level)
+
+- **Use standard PostgreSQL backup strategy:**
+- pg_dump / pg_restore for logical backups.
+- Managed DB snapshots if using cloud providers.
 - Backup frequency should match business RPO (Recovery Point Objective).
 - Always test restore into a non-production environment before relying on backup strategy.
 
+## 9. API Documentation
 
-9. API Documentation
-9.1 Base URL (example)
--- Local: http://127.0.0.1:8000/
--- API base: http://127.0.0.1:8000/api/
+### 9.1 Base URL (example)
 
-9.2 Authentication method
+- **Local:** http://127.0.0.1:8000/
+- **API base:** http://127.0.0.1:8000/api/
+
+### 9.2 Authentication method
+
 - Currently uses Django session authentication:
--- API requests assume the user is authenticated via standard Django login session.
--- CSRF protection applies to unsafe methods.
+- API requests assume the user is authenticated via standard Django login session.
+- CSRF protection applies to unsafe methods.
 
-9.3 API versioning
+### 9.3 API versioning
+
 - For this minimal project, the API is unversioned (e.g., /api/checkout/).
-- For production-grade systems, consider:
--- /api/v1/checkout/ etc.
--- Versioning via URL or header.
+- **For production-grade systems, consider:**
+- /api/v1/checkout/ etc.
+- Versioning via URL or header.
 
-9.4 Example endpoint: POST /api/checkout/
-Request:
+### 9.4 Example endpoint: POST /api/checkout/
+
+**Request:**
 {
-  "quantities": {
-    "product_key_1": 2,
-    "product_key_2": 1
-  }
+"quantities": {
+"product_key_1": 2,
+"product_key_2": 1
+}
 }
 
-- Exact schema is defined in store/api/serializers.py and may vary, but conceptually:
--- quantities is a mapping of product identifiers to desired quantities.
+- **Exact schema is defined in store/api/serializers.py and may vary, but conceptually:**
+- quantities is a mapping of product identifiers to desired quantities.
 
-Response (success): -
+**Response (success): -**
 {
-  "checkout_url": "https://checkout.stripe.com/pay/cs_test_..."
+"checkout*url": "https://checkout.stripe.com/pay/cs_test*..."
 }
 
-Response (not authenticated):
+**Response (not authenticated):**
 {
-  "detail": "Authentication credentials were not provided."
+"detail": "Authentication credentials were not provided."
 }
 
-Error handling conventions:
+**Error handling conventions:**
+
 - Validation errors return 400 with DRF-standard structure.
 - Unauthorized returns 401 / 403 as appropriate.
 - Unexpected errors are surfaced as 500, and logs should contain technical detail.
 
-10. Security Considerations
-10.1 Authentication & authorization
+## 10. Security Considerations
+
+### 10.1 Authentication & authorization
+
 - Uses Django’s built-in authentication system.
 - Order.user ensures that orders are always tied to an authenticated user.
 - Sensitive endpoints (checkout) require authentication.
 
+### 10.2 CSRF / CORS
 
-10.2 CSRF / CORS
 - CSRF protection remains enabled for session-based endpoints.
 - The UI uses standard Django templates and forms, plus JS that includes CSRF appropriately.
 - CORS is not configured for cross-origin APIs in this minimal version; if a separate SPA/mobile app is introduced, secure CORS settings must be added.
 
-10.3 Data protection
+### 10.3 Data protection
+
 - No card data or sensitive payment details are stored.
 - Only opaque Stripe identifiers are persisted.
-- For production:
--- Use HTTPS everywhere.
--- Encrypt data at rest (PostgreSQL-level / disk-level encryption).
--- Consider encryption for sensitive PII if added in the future.
+- **For production:**
+- Use HTTPS everywhere.
+- Encrypt data at rest (PostgreSQL-level / disk-level encryption).
+- Consider encryption for sensitive PII if added in the future.
 
-10.4 Secrets & key handling
-- Stripe keys and webhook secrets must be:
--- Environment-level secrets, not checked into git.
--- Rotated per organization security policy.
-- Django SECRET_KEY must be:
--- Unique per environment.
--- Treated as sensitive.
+### 10.4 Secrets & key handling
 
-10.5 Audit / logging considerations
-- Logs should record:
--- Stripe webhook event IDs and types.
--- Key status changes for Order objects.
-- For a production system, integrate with:
--- Centralized logging (ELK, CloudWatch, Stackdriver, etc.).
--- SIEM / security monitoring as required.
+- **Stripe keys and webhook secrets must be:**
+- Environment-level secrets, not checked into git.
+- Rotated per organization security policy.
+- **Django SECRET_KEY must be:**
+- Unique per environment.
+- Treated as sensitive.
 
+### 10.5 Audit / logging considerations
 
-11. Logging & Monitoring
-11.1 Logging approach
+- **Logs should record:**
+- Stripe webhook event IDs and types.
+- Key status changes for Order objects.
+- **For a production system, integrate with:**
+- Centralized logging (ELK, CloudWatch, Stackdriver, etc.).
+- SIEM / security monitoring as required.
+
+## 11. Logging & Monitoring
+
+### 11.1 Logging approach
+
 - Use Django’s logging configuration in settings.py.
-- At minimum, log:
--- Stripe webhook verification failures.
--- Webhook events that do not match any order.
--- Unexpected exceptions in webhook or checkout flows.
+- **At minimum, log:**
+- Stripe webhook verification failures.
+- Webhook events that do not match any order.
+- Unexpected exceptions in webhook or checkout flows.
 
-11.2 Log levels
-- INFO for normal lifecycle events (received webhook, created order).
+### 11.2 Log levels
+
+- INFO for normal lifecycle events (`received webhook`, `created order`).
 - WARNING for suspicious or unexpected conditions (no matching order for event).
 - ERROR for unhandled exceptions and critical failures.
 
-11.3 Error tracking
-- Recommended to integrate with:
--- Sentry, Rollbar, or similar for:
---- Exception aggregation.
---- Environment tagging (dev/stage/prod).
+### 11.3 Error tracking
 
-11.4 Operational visibility
-- Define basic metrics (if monitoring is in scope):
--- Number of created / paid / failed orders.
--- Webhook success / failure count.
--- Stripe API error rate.
+- **Recommended to integrate with:**
+- **Sentry, Rollbar, or similar for:**
+- Exception aggregation.
+- Environment tagging (`dev/stage/prod`).
 
-12. Testing Strategy
-12.1 Unit tests
-- Focused on:
--- Services (checkout, orders repository).
--- Model methods (mark_paid, mark_failed).
--- Stripe integration wrapper (mocked Stripe client).
+### 11.4 Operational visibility
 
-12.2 Integration tests
-- pytest with pytest-django used to:
--- Test /api/checkout/ end-to-end.
--- Test webhook handling (checkout.session.completed) with realistic payloads.
--- Assert idempotency of webhook processing.
+- **Define basic metrics (if monitoring is in scope):**
+- Number of created / paid / failed orders.
+- Webhook success / failure count.
+- Stripe API error rate.
 
-12.3 How to run tests
-pytest            # standard run
-pytest -q         # quiet
-pytest -vv        # verbose per-test output
+## 12. Testing Strategy
 
+### 12.1 Unit tests
 
-12.4 Test coverage expectations
-- Critical flows should have tests:
--- Checkout requires auth.
--- Checkout returns checkout_url.
--- Webhook marks order as PAID and is idempotent.
-- For production-ready systems, aim for:
--- 80%+ coverage on core modules.
--- 100% coverage on safety-critical functions (idempotency, status transitions).
+- **Focused on:**
+- Services (`checkout`, `orders repository`).
+- Model methods (`mark_paid`, `mark_failed`).
+- Stripe integration wrapper (`mocked Stripe client`).
 
+### 12.2 Integration tests
 
-13. Deployment Guide (High Level)
-13.1 Supported environments
-- Development: Local runserver + local PostgreSQL.
-- Staging/Production: Any environment capable of:
--- Running Python + Django.
--- Connecting to PostgreSQL.
--- Receiving HTTPS Stripe webhooks.
+- **pytest with pytest-django used to:**
+- Test /api/checkout/ end-to-end.
+- Test webhook handling (`checkout.session.completed`) with realistic payloads.
+- Assert idempotency of webhook processing.
 
-13.2 Deployment flow (example)
+### 12.3 How to run tests
+
+- pytest # standard run
+- pytest -q # quiet
+- pytest -vv # verbose per-test output
+
+### 12.4 Test coverage expectations
+
+- **Critical flows should have tests:**
+- Checkout requires auth.
+- Checkout returns `checkout_url`.
+- Webhook marks order as PAID and is idempotent.
+- **For production-ready systems, aim for:**
+- 80%+ coverage on core modules.
+- 100% coverage on safety-critical functions (`idempotency`, `status transitions`).
+
+## 13. Deployment Guide (High Level)
+
+### 13.1 Supported environments
+
+- **Development:** Local runserver + local PostgreSQL.
+- **Staging/Production:** Any environment capable of:
+- Running Python + Django.
+- Connecting to PostgreSQL.
+- Receiving HTTPS Stripe webhooks.
+
+### 13.2 Deployment flow (example)
+
 1. Build artifact (Docker image or packaged release).
-2. Apply database migrations:
-python manage.py migrate
+2. **Apply database migrations:**
+   python manage.py migrate
 
-3. Collect static files (if using):
-python manage.py collectstatic
+3. **Collect static files (if using):**
+   python manage.py collectstatic
 
-4. Start app server:
--- gunicorn config.wsgi or
--- uvicorn config.asgi (for ASGI stack).
+4. **Start app server:**
+
+- gunicorn config.wsgi or
+- uvicorn config.asgi (for ASGI stack).
 
 5. Configure HTTPS and domain / load balancer.
 6. Configure Stripe webhook endpoint in -- Stripe dashboard to point to:
-https://your-domain.com/stripe/webhook/
+   https://your-domain.com/stripe/webhook/
 
-13.3 Required services
+### 13.3 Required services
+
 - PostgreSQL instance.
 - Stripe account (test/live).
 - Optional: log aggregation and monitoring service.
 
-13.4 Pre-deployment checklist
-- DEBUG=False in non-dev.
-- ALLOWED_HOSTS configured.
+### 13.4 Pre-deployment checklist
+
+- **DEBUG=False** in non-dev.
+- **ALLOWED_HOSTS** configured.
 - Database reachable and migrations applied.
 - Stripe keys and webhook secret configured.
 - Health check endpoint or basic / load test passes.
 
-13.5 Post-deployment validation
-- Smoke test:
--- Login.
--- Start checkout.
--- Pay via Stripe.
--- Confirm order visible as PAID.
-- Confirm webhooks:
--- Stripe dashboard shows successful webhook delivery.
--- App logs show webhook processed without error.
+### 13.5 Post-deployment validation
 
+- **Smoke test:**
+- Login.
+- Start checkout.
+- Pay via Stripe.
+- Confirm order visible as PAID.
+- **Confirm webhooks:**
+- Stripe dashboard shows successful webhook delivery.
+- App logs show webhook processed without error.
 
-14. Rollback & Recovery
-- 14.1 Rollback strategy
--- Application rollback:
-Deploy previous known-good version of the application.
-- Database rollback:
--- Ideally forward-only migrations with backup restore if needed.
--- Avoid destructive migrations without backup.
+## 14. Rollback & Recovery
 
-14.2 DB rollback considerations
+### 14.1 Rollback strategy
+
+- **Application rollback**:
+- Deploy previous known-good version of the application.
+- **Database rollback:**
+- Ideally forward-only migrations with backup restore if needed.
+- Avoid destructive migrations without backup.
+
+### 14.2 DB rollback considerations
+
 - Before applying schema changes:
--- Take a DB snapshot or pg_dump.
--For simple changes:
--- If migrations are reversible, python manage.py migrate app_name <migration_number> can roll back.
-- In production:
--- Plan for rolling forwards rather than complex rollbacks if user data is critical.
+- Take a DB snapshot or pg_dump.
+- **For simple changes:**
+- If migrations are reversible, python manage.py migrate app_name <migration_number> can roll back.
+- **In production:**
+- Plan for rolling forwards rather than complex rollbacks if user data is critical.
 
-14.3 Disaster recovery overview
+### 14.3 Disaster recovery overview
+
 - Maintain regular backup schedule.
 - Test restore into a non-production environment.
 - Keep a documented runbook:
--- How to restore DB from backup.
--- How to reconfigure app to point to restored DB.
+  -- How to restore DB from backup.
+  -- How to reconfigure app to point to restored DB.
 
+## 15. Contribution Guidelines (for Team)
 
-15. Contribution Guidelines (for Team)
-15.1 Coding standards
+### 15.1 Coding standards
+
 - Follow PEP 8 for Python.
 - Use type hints where practical.
 - Keep functions and classes small and focused.
 - Use the service layer for orchestration; avoid heavy views.
 
-15.2 Branching strategy
+### 15.2 Branching strategy
+
 - main / master: always deployable.
 - dev / develop: integration branch (optional).
 - Feature branches: feature/short-description.
 - Bugfix branches: fix/short-description.
 
-15.3 Pull Request (PR) process
+### 15.3 Pull Request (PR) process
+
 - Every change should go via PR.
-- Include:
--- Problem statement.
--- Summary of changes.
--- Testing performed (with commands).
+- **Include:**
+- Problem statement.
+- Summary of changes.
+- Testing performed (with commands).
 - Require at least one reviewer for merge.
 
-15.4 Code review expectations
+### 15.4 Code review expectations
+
 - Check correctness and edge cases.
 - Ensure no secrets in diffs.
-- Check for:
--- Proper error handling.
--- Logging of important events.
--- No duplicated logic where a service exists.
+- **Check for:**
+- Proper error handling.
+- Logging of important events.
+- No duplicated logic where a service exists.
+
+```
+
 ```
